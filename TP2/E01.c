@@ -17,7 +17,7 @@ int main(int count, char *parameters[]) {
         N = atoi(parameters[0]);
         M = atoi(parameters[0]);
         if(N != 0 && M != 0){
-            printf("Ha ingresado N = %d y M = %d", N, M);
+            printf("Ha ingresado N = %d y M = %d\n", N, M);
 
             //Array with threads
             pthread_t aThreads[N + M];
@@ -26,7 +26,7 @@ int main(int count, char *parameters[]) {
             for (int i = 0; i < N; i++) {
                 pthread_t t;
                 if (pthread_create(&t, NULL, executeType1, 0) == 0){
-                    printf("No se ha podido crear el thread %d.", i);
+                    printf("No se ha podido crear el thread %d.\n", i);
                 } else {
                     aThreads[i] = t;
                 }
@@ -36,7 +36,7 @@ int main(int count, char *parameters[]) {
             for (int i = N; i < N + M; i++) {
                 pthread_t t;
                 if (pthread_create(&t, NULL, executeType2, 0) == 0){
-                    printf("No se ha podido crear el thread %d.", i);
+                    printf("No se ha podido crear el thread %d.\n", i);
                 } else {
                     aThreads[i] = t;
                 }
@@ -47,11 +47,11 @@ int main(int count, char *parameters[]) {
                 pthread_join(aThreads[i], 0);
             }
 
-            printf("Fin del programa.");
+            printf("Fin del programa.\n");
         } else {
-            printf("Los números ingresados no son válidos.");
+            printf("Los números ingresados no son válidos.\n");
         }
     } else {
-        printf("Ingrese al menos 2 números por parámetro.");
+        printf("Ingrese al menos 2 números por parámetro.\n");
     }
 }
