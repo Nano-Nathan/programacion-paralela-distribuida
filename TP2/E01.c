@@ -4,18 +4,18 @@
 #include <pthread.h>
 
 void *executeType1 () {
-    printf("Type 1.");    
+    printf("Type 1.\n");
 }
 
 void *executeType2 () {
-    printf("Type 2.");
+    printf("Type 2.\n");
 }
 
 int main(int count, char *parameters[]) {
     int N, M;
-    if(count != 2){
-        N = atoi(parameters[0]);
-        M = atoi(parameters[0]);
+    if(count == 3){
+        N = atoi(parameters[1]);
+        M = atoi(parameters[2]);
         if(N != 0 && M != 0){
             printf("Ha ingresado N = %d y M = %d\n", N, M);
 
@@ -25,7 +25,7 @@ int main(int count, char *parameters[]) {
             //Create type 1 thread
             for (int i = 0; i < N; i++) {
                 pthread_t t;
-                if (pthread_create(&t, NULL, executeType1, 0) == 0){
+                if (pthread_create(&t, NULL, executeType1, NULL) != 0){
                     printf("No se ha podido crear el thread %d.\n", i);
                 } else {
                     aThreads[i] = t;
@@ -35,16 +35,16 @@ int main(int count, char *parameters[]) {
             //Create type 2 thread
             for (int i = N; i < N + M; i++) {
                 pthread_t t;
-                if (pthread_create(&t, NULL, executeType2, 0) == 0){
+                if (pthread_create(&t, NULL, executeType2, NULL) != 0){
                     printf("No se ha podido crear el thread %d.\n", i);
                 } else {
                     aThreads[i] = t;
                 }
             }
-            
+
             //Wait threads
             for (int i = 0; i < N + M; i++){
-                pthread_join(aThreads[i], 0);
+                pthread_join(aThreads[i], NULL);
             }
 
             printf("Fin del programa.\n");
