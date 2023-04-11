@@ -3,11 +3,11 @@
 #include <string.h>
 #include <pthread.h>
 
-void executeType1 () {
+void *executeType1 () {
     printf("Type 1.");    
 }
 
-void executeType2 () {
+void *executeType2 () {
     printf("Type 2.");
 }
 
