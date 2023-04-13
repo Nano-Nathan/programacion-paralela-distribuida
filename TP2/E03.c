@@ -25,10 +25,12 @@ void executeClient (int pWrite [], int pRead []) {
 void executeServer(int N, int pWrite [N][2], int pRead [N][2]) {
     for (int i = 0; i < N; i++){
         //Send message test
-        write(pWrite[i][1], "Esto envia el padre", 20);
+        write(pWrite[i][1], "Esto envia el padre " + i, 23);
         //Close Write extrem
         close(pWrite[i][1]);
 
+    }
+    for (int i = 0; i < N; i++) {
         //Await response childen
         char response[2];
         read(pRead[i][0], response, 2);
@@ -36,6 +38,7 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2]) {
         //Close Read extrem
         close(pRead[i][0]);
     }
+    
     printf("Fin del programa.\n");
 }
 
