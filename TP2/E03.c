@@ -4,22 +4,39 @@
 #include <string.h>
 
 void executeClient (int pWrite [], int pRead []) {
-    printf("Type 1.\n");
+    char message[20];
+    //Await message from parent
+    read(pRead[0], message, sizeof(message));
+    printf("Mensaje recibido del padre: %s\n", message);
     //Close Read extrem
     close(pRead[0]);
+
+    //Send message from parent
+    write(pWrite[1], "OK", 2);
     //Close Write extrem
     close(pWrite[1]);
+
+    //Close Read extrem
+    //close(pRead[0]);
+    //Close Write extrem
+    //close(pWrite[1]);
 }
 
 void executeServer(int N, int pWrite [N][2], int pRead [N][2]) {
-    printf("Fin del programa.\n");
+    char message[] = "Esto envia el padre";
     for (int i = 0; i < N; i++){
-        //Close Read extrem
-        close(pRead[i][0]);
+        //Send message test
+        write(pWrite[i][1], message, sizeof(message));
         //Close Write extrem
         close(pWrite[i][1]);
+
+        //Await response childen
+        read(pRead[i][0], message, sizeof(message));
+        printf("Mensaje recibido del proceso hijo %d: %s\n", i, message);
+        //Close Read extrem
+        close(pRead[i][0]);
     }
-    
+    printf("Fin del programa.\n");
 }
 
 int main(int count, char *parameters[]) {
