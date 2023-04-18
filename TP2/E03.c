@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 #include <string.h>
 
 // -1: Abandona, 0: Se planta, 1: Continua
@@ -110,7 +111,7 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
         //Si seguia en juego
         if(status[i] == 1){
             //Avisa que termino
-            write(pWrite[i][1], -1, sizeof(double));
+            write(pWrite[i][1], 0, sizeof(double));
             //Espera el score
             int score;
             read(pRead[i][0], &score, sizeof(int));
