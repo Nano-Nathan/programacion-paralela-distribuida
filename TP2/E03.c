@@ -20,6 +20,14 @@ void executeClient (int pWrite [], int pRead []) {
             score += currentCart;
 
             //Toma la decision
+            if(score > 5.5){
+                //Abandona o se planta
+                if(score > 7.5){
+                    decision = -1;
+                } else {
+                    decision = 0;
+                }
+            }
 
             //Avisa al padre si continua o no
             write(pWrite[1], &decision, sizeof(int));
@@ -114,8 +122,8 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
             //Avisa que termino
             write(pWrite[i][1], &flag, sizeof(double));
             //Espera el score
-            int score;
-            read(pRead[i][0], &score, sizeof(int));
+            double score;
+            read(pRead[i][0], &score, sizeof(double));
             scores[i] = score;
             //Cierra las conexiones
             close(pRead[i][0]);
@@ -125,7 +133,7 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
 
     //Elije el ganador
     for (int i = 0; i < N; i++){
-        printf("El proceso %d tiene %.1f puntos.", i, scores[i]);
+        printf("El proceso %d tiene %.1f puntos.\n", i, scores[i]);
     }
 }
 
