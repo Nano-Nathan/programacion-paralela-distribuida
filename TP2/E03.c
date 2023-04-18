@@ -150,7 +150,7 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
         newDifference = 7.5 - scores[i];
 
         //Si la diferencia es menor a la actual y es valida, se convierte en la actual
-        if(newDifference < minDifference && newDifference <= 7.5){
+        if(newDifference < minDifference && scores[i] <= 7.5){
             winner = i;
             minDifference = newDifference;
         }
