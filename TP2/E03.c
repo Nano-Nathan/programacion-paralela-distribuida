@@ -3,43 +3,128 @@
 #include <unistd.h>
 #include <string.h>
 
+// -1: Abandona, 0: Se planta, 1: Continua
 void executeClient (int pWrite [], int pRead []) {
-    char message[20];
-    //Await message from parent
-    read(pRead[0], message, sizeof(message));
-    printf("Mensaje recibido del padre: %s\n", message);
-    //Close Read extrem
+    int decision = 1;
+    double score = 0;
+    double currentCart = 1;
+
+    //Mientras el juego no haya terminado y siga jugando
+    while (currentCart > 0 && decision > 0){
+        //Solicita la carta al padre
+        read(pRead[0], &currentCart, sizeof(double));
+        //Valida si no se ha terminado el juego
+        if(currentCart > 0){
+            //Aumenta su score
+            score += currentCart;
+
+            //Toma la decision
+
+            //Avisa al padre si continua o no
+            write(pWrite[1], &decision, sizeof(int));
+        }
+    }
+
+    //Al terminar la ejecucion, envia el score y cierra las conexiones
+    write(pWrite[1], &score, sizeof(double));
     close(pRead[0]);
-
-    //Send message from parent
-    write(pWrite[1], "OK", 2);
-    //Close Write extrem
     close(pWrite[1]);
-
-    //Close Read extrem
-    //close(pRead[0]);
-    //Close Write extrem
-    //close(pWrite[1]);
 }
 
-void executeServer(int N, int pWrite [N][2], int pRead [N][2]) {
-    for (int i = 0; i < N; i++){
-        //Send message test
-        write(pWrite[i][1], "Esto envia el padre", 20);
-        //Close Write extrem
-        close(pWrite[i][1]);
 
+void shuffle(double *array, int n) {
+    srand(time(NULL));
+    for (int i = n - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        double temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
     }
-    for (int i = 0; i < N; i++) {
-        //Await response childen
-        char response[2];
-        read(pRead[i][0], response, 2);
-        printf("Mensaje recibido del proceso hijo %d: %s\n", i, response);
-        //Close Read extrem
-        close(pRead[i][0]);
+}
+
+// -1: Abandona, 0: Se planta, 1: Continua
+void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
+    int status[N];
+    int countP = 0;
+    int countA = 0;
+    int currentCart = 0;
+    int size = 40;
+    double scores[N];
+    double carts[] = {
+        1, 2, 3, 4, 5, 6, 7, 0.5, 0.5, 0.5,
+        1, 2, 3, 4, 5, 6, 7, 0.5, 0.5, 0.5,
+        1, 2, 3, 4, 5, 6, 7, 0.5, 0.5, 0.5,
+        1, 2, 3, 4, 5, 6, 7, 0.5, 0.5, 0.5
+    };
+
+    //Inicializo los estados y scores
+    for (int i = 0; i < N; i++){
+        status[i] = 1;
+        scores[i] = 0;
     }
     
-    printf("Fin del programa.\n");
+    //Mezclo las cartas
+    shuffle(carts, size);
+
+    //Mientras haya jugadores y cartas
+    while ((countP + countA < N) && (size - currentCart > N)) {
+        //Reparte las cartas
+        for (int i = 0; i < N; i++){
+            //Si sigue en juego
+            if(status[i] == 1){
+                //Envia el valor de la carta que le toca
+                write(pWrite[i][1], &carts[currentCart], sizeof(double));
+                //Selecciona la siguiente carta para repartir
+                currentCart++;
+            }
+        }
+
+        //Espera la decision de cada cliente
+        for (int i = 0; i < N; i++){
+            //Si continuaba
+            if(status[i] == 1){
+                //Actualiza el estado del cliente
+                int response;
+                read(pRead[i][0], &response, sizeof(int));
+                status[i] = response;
+                //Actualiza los contadores
+                if(response < 1){
+                    if (response == -1){
+                        countA++;
+                    } else if (response == 0){
+                        countP++;
+                    }
+                    //Si abandona, consulta los puntos y cierra la conexion
+                    int score;
+                    read(pRead[i][0], &score, sizeof(double));
+                    scores[i] = score;
+                    close(pRead[i][0]);
+                    close(pWrite[i][1]);
+                }
+            }
+        }
+    }
+
+    //Una vez terminado el juego, avisa a quienes siguen que termina, espera su score y cierra la conexion
+    for (int i = 0; i < N; i++){
+        //Si seguia en juego
+        if(status[i] == 1){
+            //Avisa que termino
+            write(pWrite[i][1], -1, sizeof(double));
+            //Espera el score
+            int score;
+            read(pRead[i][0], &score, sizeof(int));
+            scores[i] = score;
+            //Cierra las conexiones
+            close(pRead[i][0]);
+            close(pWrite[i][1]);
+        }
+    }
+
+    //Elije el ganador
+    for (int i = 0; i < N; i++){
+        printf("El proceso %d tiene %.1f puntos.", i, scores[i]);
+    }
 }
 
 int main(int count, char *parameters[]) {
@@ -96,7 +181,7 @@ int main(int count, char *parameters[]) {
 
             if(idC != 0){
                 //Init game
-                executeServer(N, pipesR, pipesW);
+                executeServer(N, pipesR, pipesW, process);
             }
         } else {
             printf("El números ingresados no es válido.\n");
