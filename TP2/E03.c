@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdbool.h>
 #include <string.h>
 
 // -1: Abandona, 0: Se planta, 1: Continua
@@ -132,8 +133,34 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
     }
 
     //Elije el ganador
+    int winner = -1;
+    double minDifference = 7.5;
+    double newDifference;
     for (int i = 0; i < N; i++){
-        printf("El proceso %d tiene %.1f puntos.\n", i, scores[i]);
+        printf("El proceso %d tiene %.1f puntos. Su desición final es ", i, scores[i]);
+        if(status[i] == -1){
+            printf("abandonar.\n");
+        } else if (status[0] == 0){
+            printf("plantarse.\n");
+        } else {
+            printf("continuar.\n");
+        }
+
+        //Calcula la distancia entre los puntos del cliente y el objetivo
+        newDifference = 7.5 - scores[i];
+
+        //Si la diferencia es menor a la actual y es valida, se convierte en la actual
+        if(newDifference < minDifference && newDifference <= 7.5){
+            winner = i;
+            minDifference = newDifference;
+        }
+    }
+
+    //Muestra el ganador
+    if(winner > -1){
+        printf("El ganador ha sido el proceso %d.\n", winner);
+    } else {
+        printf("Ningun proceso ha ganado.\n");
     }
 }
 
