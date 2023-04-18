@@ -96,7 +96,7 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
                         countP++;
                     }
                     //Si abandona, consulta los puntos y cierra la conexion
-                    int score;
+                    double score;
                     read(pRead[i][0], &score, sizeof(double));
                     scores[i] = score;
                     close(pRead[i][0]);
@@ -106,12 +106,13 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
         }
     }
 
+    double flag = 0.0;
     //Una vez terminado el juego, avisa a quienes siguen que termina, espera su score y cierra la conexion
     for (int i = 0; i < N; i++){
         //Si seguia en juego
         if(status[i] == 1){
             //Avisa que termino
-            write(pWrite[i][1], 0, sizeof(double));
+            write(pWrite[i][1], &flag, sizeof(double));
             //Espera el score
             int score;
             read(pRead[i][0], &score, sizeof(int));
