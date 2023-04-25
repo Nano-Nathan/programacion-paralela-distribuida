@@ -16,22 +16,22 @@ void executeClient (int pWrite [], int pRead [], int idx) {
         printf("- Hilo %d.\n", idx);
         //Solicita la carta al padre
         read(pRead[0], &currentCart, sizeof(double));
-        printf("\pRecibe %.1f.\n", currentCart);
+        printf("    Recibe %.1f.\n", currentCart);
         //Valida si no se ha terminado el juego
         if(currentCart > 0){
             //Aumenta su score
             score += currentCart;
-            printf("\pNuevo score %.1f.\n", score);
+            printf("    Nuevo score %.1f.\n", score);
 
             //Toma la decision
             if(score > 5.5){
                 //Abandona o se planta
                 if(score > 7.5){
                     decision = -1;
-                    printf("\pAbandona.\n");
+                    printf("    Abandona.\n");
                 } else {
                     decision = 0;
-                    printf("\pSe planta.\n");
+                    printf("    Se planta.\n");
                 }
             }
 
@@ -41,7 +41,7 @@ void executeClient (int pWrite [], int pRead [], int idx) {
     }
 
     //Al terminar la ejecucion, envia el score y cierra las conexiones
-    printf("\pScore final %.1f.\n", score);
+    printf("    Score final %.1f.\n", score);
     write(pWrite[1], &score, sizeof(double));
     close(pRead[0]);
     close(pWrite[1]);
