@@ -6,27 +6,32 @@
 #include <string.h>
 
 // -1: Abandona, 0: Se planta, 1: Continua
-void executeClient (int pWrite [], int pRead []) {
+void executeClient (int pWrite [], int pRead [], int idx) {
     int decision = 1;
     double score = 0;
     double currentCart = 1;
 
     //Mientras el juego no haya terminado y siga jugando
     while (currentCart > 0 && decision > 0){
+        printf("- Hilo %d.\n", idx);
         //Solicita la carta al padre
         read(pRead[0], &currentCart, sizeof(double));
+        printf("\pRecibe %.1f.\n", currentCart);
         //Valida si no se ha terminado el juego
         if(currentCart > 0){
             //Aumenta su score
             score += currentCart;
+            printf("\pNuevo score %.1f.\n", score);
 
             //Toma la decision
             if(score > 5.5){
                 //Abandona o se planta
                 if(score > 7.5){
                     decision = -1;
+                    printf("\pAbandona.\n");
                 } else {
                     decision = 0;
+                    printf("\pSe planta.\n");
                 }
             }
 
@@ -36,6 +41,7 @@ void executeClient (int pWrite [], int pRead []) {
     }
 
     //Al terminar la ejecucion, envia el score y cierra las conexiones
+    printf("\pScore final %.1f.\n", score);
     write(pWrite[1], &score, sizeof(double));
     close(pRead[0]);
     close(pWrite[1]);
@@ -77,7 +83,9 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
     shuffle(carts, size);
 
     //Mientras haya jugadores y cartas
+    int i = 0;
     while ((countP + countA < N) && (size - currentCart > N)) {
+        printf("\nRonda %d:\n", i);
         //Reparte las cartas
         for (int i = 0; i < N; i++){
             //Si sigue en juego
@@ -113,6 +121,7 @@ void executeServer(int N, int pWrite [N][2], int pRead [N][2], int clients[N]) {
                 }
             }
         }
+        i++;
     }
 
     double flag = 0.0;
@@ -203,7 +212,7 @@ int main(int count, char *parameters[]) {
                     close(pipesW[i][0]);
                     //Close write extrem
                     close(pipesR[i][1]);
-                    executeClient(pipesW[i], pipesR[i]);
+                    executeClient(pipesW[i], pipesR[i], i);
                     break;
                 }
 
