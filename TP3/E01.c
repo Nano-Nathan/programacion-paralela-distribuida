@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <mpi.h>
+// mpdboot -n 4 -f nodoscluster
+// mpicc –o holamundo holamundo.c
 
 int my_id, nproc, resultlen;
 char name[30];
