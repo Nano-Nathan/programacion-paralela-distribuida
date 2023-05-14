@@ -14,7 +14,7 @@ int Bcast (int source, char *msg, int tam) {
         //envia el mensaje
         for (i = 0; i < nproc; i++) {
             if (i != source){
-                MPI_Isend(&msg, tam, MPI_CHAR, i, 0, MPI_COMM_WORLD, requests[i]);
+                MPI_Isend(&msg, tam, MPI_CHAR, i, 0, MPI_COMM_WORLD, &requests[i]);
             }
         }
 
@@ -23,7 +23,7 @@ int Bcast (int source, char *msg, int tam) {
         //Espera la recepcion
         for (i = 0; i < nproc; i++){
             if(i != source){
-                MPI_Wait(requests[i], &status);
+                MPI_Wait(&requests[i], &status);
             }
         }
     } else {
@@ -34,8 +34,8 @@ int Bcast (int source, char *msg, int tam) {
 }
 
 int main (int argc, char **argv){
-    char message[10] = "Mensaje";
+    char *message = "Mensaje";
     MPI_Init(&argc, &argv);
-    Bcast(0, &message, 10);
+    Bcast(0, message, 10);
     MPI_Finalize();
 }
